@@ -46,7 +46,7 @@ class FlirtyKeyboardService : InputMethodService() {
 
         val toolbar = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
         toolbar.addView(tool("☰") { showCategoryPicker() })
-        toolbar.addView(tool("😊") { commit("😊") })
+        toolbar.addView(tool("😊") { showEmojiPicker() })
         toolbar.addView(tool("📋") { Toast.makeText(this@FlirtyKeyboardService, "Clipboard history is not enabled yet. Use your phone clipboard.", Toast.LENGTH_SHORT).show() })
         toolbar.addView(tool("💘 Lines") { showLines() })
         toolbar.addView(tool("⚙") { requestSettings() })
@@ -84,6 +84,13 @@ class FlirtyKeyboardService : InputMethodService() {
                 background = keyBackground()
                 setPadding(0, 0, 0, 0)
                 setOnClickListener { handleKey(key) }
+                if (key == "⌫") {
+                    setOnLongClickListener {
+                        val before = currentInputConnection?.getTextBeforeCursor(10000, 0)?.toString().orEmpty()
+                        if (before.isNotEmpty()) currentInputConnection?.deleteSurroundingText(before.length, 0)
+                        true
+                    }
+                }
             }
             row.addView(b, LinearLayout.LayoutParams(0, dp(45), weight).apply { setMargins(2, 2, 2, 2) })
         }
@@ -123,6 +130,21 @@ class FlirtyKeyboardService : InputMethodService() {
         }
         scroll.addView(row)
         area.addView(scroll)
+    }
+
+    private fun showEmojiPicker() {
+        val area = lineArea ?: return
+        area.removeAllViews()
+        val emojis = listOf("😀","😃","😄","😁","😆","😅","😂","🤣","🥹","😊","😇","🙂","🙃","😉","😍","🥰","😘","😗","😙","😚","😋","😛","😜","🤪","😎","🥳","😭","🥺","😏","😌","🤗","🤭","❤️","🧡","💛","💚","💙","💜","🖤","🤍","💕","💞","💓","💗","💖","💘","💝","💟","🔥","✨","🌹","🌷","🌸","🌺","🌻","💐","☀️","🌙","⭐","🎉","🥂","☕","🍫","🫶","👍","👎","👏","🙌","🙏","🤝","💪","👀","💋","💌","💍","🎶","😻","🙈","😈")
+        val scroll = ScrollView(this)
+        val grid = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        emojis.chunked(8).forEach { group ->
+            val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+            group.forEach { emoji -> row.addView(tool(emoji) { commit(emoji); addLineStrip() }, LinearLayout.LayoutParams(0, dp(42), 1f)) }
+            grid.addView(row)
+        }
+        scroll.addView(grid)
+        area.addView(scroll, LinearLayout.LayoutParams(-1, dp(150)))
     }
 
     private fun showLines() { showCategoryPicker() }
