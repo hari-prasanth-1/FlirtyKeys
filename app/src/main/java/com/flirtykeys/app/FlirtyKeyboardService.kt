@@ -128,7 +128,7 @@ class FlirtyKeyboardService : InputMethodService() {
     private fun showLines() { showCategoryPicker() }
     private fun requestSettings() {
         Toast.makeText(this, "Open FlirtyKeys app to change themes and brightness.", Toast.LENGTH_LONG).show()
-        try { startActivity(packageManager.getLaunchIntentForPackage(packageName)?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Exception) {}
+        try { val launch = packageManager.getLaunchIntentForPackage(packageName); if (launch != null) startActivity(launch.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Exception) {}
     }
     private fun commit(text: String) { currentInputConnection?.commitText(text, 1) }
 
