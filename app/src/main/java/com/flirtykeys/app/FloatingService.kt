@@ -27,7 +27,7 @@ class FloatingService : Service() {
     private var panel: View? = null
     private val selected = linkedSetOf<String>()
     private var activeCategory = "Flirty"
-    private val categories = listOf("Cute", "Flirty", "Romantic", "Funny", "Smooth", "Bold", "Seductive", "Teasing", "Starters", "Good morning", "Good night", "Compliments")
+    private val categories = listOf("Cute", "Flirty", "Romantic", "Funny", "Smooth", "Bold", "Seductive", "Teasing", "Starters", "Good morning", "Good night", "Compliments", "Thanglish")
     private val lines = mapOf(
         "Cute" to listOf("You just made my day a little brighter.", "Is it your smile, or did the room just get warmer?", "I think my favourite notification would be from you.", "Talking to you is becoming my favourite habit."),
         "Flirty" to listOf("Are you always this charming, or is it just with me?", "I was having a normal day until you crossed my mind.", "Should I keep flirting, or are you already smiling?", "You make it very hard to play it cool."),
@@ -40,7 +40,29 @@ class FloatingService : Service() {
         "Starters" to listOf("What's one thing that instantly makes you happy?", "What's your ideal way to spend a free evening?", "What's something you've always wanted to try?", "What's the best part of your week so far?"),
         "Good morning" to listOf("Good morning! Hope today gives you plenty of reasons to smile.", "Morning! Just sending a little positive energy your way.", "Hope your coffee is good and your day is even better."),
         "Good night" to listOf("Sleep well. Hope tomorrow treats you kindly.", "Good night! Save a little smile for me tomorrow.", "Wishing you peaceful dreams and a lovely morning."),
-        "Compliments" to listOf("You have a really lovely way of expressing yourself.", "Your smile has a way of making people feel welcome.", "I genuinely enjoy your sense of humour.", "You have a great energy about you.")
+        "Compliments" to listOf("You have a really lovely way of expressing yourself.", "Your smile has a way of making people feel welcome.", "I genuinely enjoy your sense of humour.", "You have a great energy about you."),
+        "Thanglish" to listOf(
+            "Un smile paatha, en day automatic-ah nalla aagidum.",
+            "Nee online varumbodhu dhaan en phone-ku meaning varudhu.",
+            "Un kooda pesina time eppadi pogudhune theriyala.",
+            "Coffee vida un kooda conversation dhaan more refreshing.",
+            "Unna paatha odane, enakku words-e varamaatingudhu.",
+            "Nee busy-ah irundhaalum, en mind-la always online dhaan.",
+            "Un voice kekka oru reason thedittu irukken.",
+            "Unakku theriyuma? Un message vandha naan konjam extra happy aagiduven.",
+            "First sight-la love nu theriyadhu, but first chat-la interest vandhuduchu.",
+            "Un kooda oru long drive pona, playlist vida conversation super-ah irukkum.",
+            "Nee sirikkumbodhu, background music venum pola irukku.",
+            "Enakku perfect day-na, un kooda konjam time spend panradhu dhaan.",
+            "Unna impress panna try panren; aana nee already enna impress pannita.",
+            "Oru question: un smile-ku copyright irukka? Daily paakanum pola irukku.",
+            "Un kitta pesuradhu habit aagiduchu… complaint panna poriya?",
+            "Namma chat-ku konjam extra time extend pannalama?",
+            "Nee en favourite notification aayita, adha change panna mudiyadhu.",
+            "Un vibe romba nalla irukku; innum konjam therinjikalaama?",
+            "Namma rendu perum serndhu oru coffee try pannalama?",
+            "Good night solla vandhen… aana innum konjam pesa thonudhu."
+        )
     )
 
     override fun onCreate() {
