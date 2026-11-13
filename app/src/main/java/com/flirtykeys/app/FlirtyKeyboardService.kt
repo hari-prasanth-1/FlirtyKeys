@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.content.Context
+import android.content.ClipboardManager
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -22,6 +23,7 @@ class FlirtyKeyboardService : InputMethodService() {
     private var lineArea: LinearLayout? = null
     private var root: LinearLayout? = null
     private var activeCategory = "Flirty"
+    private val recentEmojis = mutableListOf<String>()
 
     private val categories = listOf("Flirty", "Cute", "Romantic", "Funny", "Smooth", "Bold", "Teasing", "Starters", "Compliments", "Good morning", "Good night", "Thanglish")
     private val lines = mapOf(
@@ -47,7 +49,7 @@ class FlirtyKeyboardService : InputMethodService() {
         val toolbar = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
         toolbar.addView(tool("☰") { showCategoryPicker() })
         toolbar.addView(tool("😊") { showEmojiPicker() })
-        toolbar.addView(tool("📋") { Toast.makeText(this@FlirtyKeyboardService, "Clipboard history is not enabled yet. Use your phone clipboard.", Toast.LENGTH_SHORT).show() })
+        toolbar.addView(tool("📋") { showClipboardHistory() })
         toolbar.addView(tool("💘 Lines") { showLines() })
         toolbar.addView(tool("⚙") { requestSettings() })
         container.addView(toolbar)
@@ -60,7 +62,7 @@ class FlirtyKeyboardService : InputMethodService() {
             listOf("1","2","3","4","5","6","7","8","9","0"),
             listOf("@","#","$","%","&","-","+","(",")","/"),
             listOf("*","\"","' ",":",";","!","?"),
-            listOf("ABC"," ,","😊","SPACE","⌫","↵")
+            listOf("ABC",",","😊","SPACE","⌫","↵")
         ) else listOf(
             listOf("q","w","e","r","t","y","u","i","o","p"),
             listOf("a","s","d","f","g","h","j","k","l"),
@@ -86,8 +88,11 @@ class FlirtyKeyboardService : InputMethodService() {
                 setOnClickListener { handleKey(key) }
                 if (key == "⌫") {
                     setOnLongClickListener {
-                        val before = currentInputConnection?.getTextBeforeCursor(10000, 0)?.toString().orEmpty()
-                        if (before.isNotEmpty()) currentInputConnection?.deleteSurroundingText(before.length, 0)
+                        val before = currentInputConnection?.getTextBeforeCursor(1000, 0)?.toString().orEmpty()
+                        val trailingSpaces = before.reversed().takeWhile { it.isWhitespace() }.length
+                        val wordLength = before.dropLast(trailingSpaces).reversed().takeWhile { !it.isWhitespace() }.length
+                        val count = trailingSpaces + wordLength
+                        if (count > 0) currentInputConnection?.deleteSurroundingText(count, 0)
                         true
                     }
                 }
@@ -145,6 +150,37 @@ class FlirtyKeyboardService : InputMethodService() {
         }
         scroll.addView(grid)
         area.addView(scroll, LinearLayout.LayoutParams(-1, dp(150)))
+    }
+
+    private fun showClipboardHistory() {
+        val area = lineArea ?: return
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val history = LinkedHashSet<String>()
+        try {
+            val clip = clipboard.primaryClip
+            if (clip != null) {
+                for (i in 0 until clip.itemCount) {
+                    val value = clip.getItemAt(i).coerceToText(this)?.toString()?.trim().orEmpty()
+                    if (value.isNotEmpty()) history.add(value)
+                }
+            }
+        } catch (_: SecurityException) { }
+        history.addAll(prefs.getString("clipboard_history", "").orEmpty().split("\n").filter { it.isNotBlank() })
+        val items = history.toList().take(12)
+        area.removeAllViews()
+        if (items.isEmpty()) {
+            area.addView(TextView(this).apply {
+                text = "No clipboard items yet. Copy text, then tap 📋."
+                setTextColor(Color.WHITE); setPadding(dp(8), dp(12), dp(8), dp(12))
+            })
+            return
+        }
+        val scroll = HorizontalScrollView(this)
+        val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        items.forEach { item -> row.addView(tool(item.take(70)) { commit(item); addLineStrip() }) }
+        scroll.addView(row)
+        area.addView(scroll)
+        prefs.edit().putString("clipboard_history", items.joinToString("\n")).apply()
     }
 
     private fun showLines() { showCategoryPicker() }
